@@ -1,4 +1,5 @@
 import os
+import pickle
 
 import mediapipe as mp
 import cv2
@@ -27,6 +28,7 @@ for dir_ in os.listdir(DATA_DIR):
         continue  # skip .DS_Store or anything weird
     
     for img_path in os.listdir(os.path.join(DATA_DIR, dir_)): #[:1] can be added before the : to only itterete through one image
+        data_aux = [] # saves x,y landmark cords per image
         img = cv2.imread(os.path.join(DATA_DIR, dir_, img_path))
         # mediapipe uses rgb, so we need to convert the raw images so landmarks can work
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -49,4 +51,12 @@ for dir_ in os.listdir(DATA_DIR):
                     # these values will be out into an array, meaning we only process the actual landmarks, not the whole image
                     x = hand_landmarks.landmark[i].x
                     y = hand_landmarks.landmark[i].y
-                
+                    data_aux.append(x)
+                    data_aux.append(y)
+                    
+                data.append(data_aux) # appends local landmarks
+                labels.append(dir_) # appends category
+
+df_pickle = open('data.pickle', 'wb')
+pickle.dump({'data': data, 'labels': labels}, df_pickle)
+df_pickle.close()
