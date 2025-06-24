@@ -38,24 +38,29 @@ for dir_ in os.listdir(DATA_DIR):
         if results.multi_hand_landmarks:
             # itterates through results and plots the landmarks onto them
                             # for drawing on the image, mainly for testing
-            for hand_landmarks in results.multi_hand_landmarks:
-                # for drawing on the image, mainly for testing
-                #mp_drawing.draw_landmarks(
-                #    img_rgb, # image to draw
-                #    hand_landmarks, #model output
-                #    mp_hands.HAND_CONNECTIONS,
-                #    mp_drawing_styles.get_default_hand_landmarks_style(),
-                #    mp_drawing_styles.get_default_hand_connections_style())
-                for i in range(len(hand_landmarks.landmark)):
-                    #print(hand_landmarks.landmark[i]) # simple print of landmarks, only x and y needed
-                    # these values will be out into an array, meaning we only process the actual landmarks, not the whole image
-                    x = hand_landmarks.landmark[i].x
-                    y = hand_landmarks.landmark[i].y
-                    data_aux.append(x)
-                    data_aux.append(y)
+            for h in range(2):  # max 2 hands
+                if h < len(results.multi_hand_landmarks):
+                    hand_landmarks = results.multi_hand_landmarks[h]
+                    # for drawing on the image, mainly for testing
+                    #mp_drawing.draw_landmarks(
+                    #    img_rgb, # image to draw
+                    #    hand_landmarks, #model output
+                    #    mp_hands.HAND_CONNECTIONS,
+                    #    mp_drawing_styles.get_default_hand_landmarks_style(),
+                    #    mp_drawing_styles.get_default_hand_connections_style())
+                    for i in range(len(hand_landmarks.landmark)):
+                        #print(hand_landmarks.landmark[i]) # simple print of landmarks, only x and y needed
+                        # these values will be out into an array, meaning we only process the actual landmarks, not the whole image
+                        x = hand_landmarks.landmark[i].x
+                        y = hand_landmarks.landmark[i].y
+                        data_aux.append(x)
+                        data_aux.append(y)
+                else:
+                    data_aux.extend([0.0] * 42)  # pad if second hand missing
                     
-                data.append(data_aux) # appends local landmarks
-                labels.append(dir_) # appends category
+            data.append(data_aux) # appends local landmarks
+            labels.append(dir_) # appends category
+
 
 df_pickle = open('data.pickle', 'wb')
 pickle.dump({'data': data, 'labels': labels}, df_pickle)
